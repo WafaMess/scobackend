@@ -105,6 +105,38 @@ app.post("/verifier-tel", async (req, res) => {
   }
 });
 
+app.post("/enregistrer-code-postal", async (req, res) => {
+  const { cpcl } = req.body;
+  console.log("Received cpcl:", cpcl); // Log the received cpcl
+
+  if (!cpcl) {
+    return res.status(400).json({
+      status: "error",
+      message: "Le code postal est requis.",
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO client (cpcl) VALUES ($1) RETURNING *",
+      [cpcl]
+    );
+    console.log("Insert result:", result); // Log the result of the insert query
+
+    res.json({
+      status: "success",
+      message: "Code postal enregistré.",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'insertion du code postal:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Erreur du serveur lors de l'enregistrement du code postal.",
+      error: error.message,
+    });
+  }
+});
 // Démarrer le serveur
 app.listen(port, () => {
   console.log(`Le serveur est démarré sur le port ${port}`);
