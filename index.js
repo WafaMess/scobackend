@@ -71,7 +71,14 @@ app.get("/db/:param", async (req, res) => {
       ]);
     }
     if (result.rows.length > 0) {
-      res.json(result.rows[0]);
+      const product = result.rows[0];
+      if (product.chemin_img) {
+        // Construisez l'URL de l'image seulement si le chemin existe
+        product.imageUrl = `http://localhost:5000/static/${product.chemin_img}`;
+      }
+      // Envoyez la réponse avec les détails du produit
+      // Si le produit n'a pas d'image, 'imageUrl' ne sera pas inclus
+      res.json(product);
     } else {
       res.status(404).send("Produit non trouvé");
     }
