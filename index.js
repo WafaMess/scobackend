@@ -88,39 +88,28 @@ app.get("/db/:param", async (req, res) => {
   }
 });
 
-// app.get("/db/:nompr", async (req, res) => {
-//   const { nompr } = req.params;
-//   try {
-//     const result = await pool.query("SELECT * FROM PRODUIT WHERE nompr = $1", [
-//       nompr,
-//     ]);
-//     if (result.rows.length > 0) {
-//       res.json(result.rows[0]);
-//     } else {
-//       res.status(404).send("Produit non trouvé");
-//     }
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).send("Erreur du serveur");
-//   }
-// });
-// app.get("/db/:codebare", async (req, res) => {
-//   const { codebare } = req.params;
-//   try {
-//     const result = await pool.query(
-//       "SELECT * FROM PRODUIT WHERE codebare = $1",
-//       [codebare]
-//     );
-//     if (result.rows.length > 0) {
-//       res.json(result.rows[0]);
-//     } else {
-//       res.status(404).send("Produit non trouvé");
-//     }
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).send("Erreur du serveur");
-//   }
-// });
+app.post("/verifier-codepostal", async (req, res) => {
+  const { codePostal } = req.body;
+  try {
+    const result = await pool.query("SELECT cpcl FROM client WHERE cpcl = $1", [
+      codePostal,
+    ]);
+    if (result.rows.length > 0) {
+      // Code Postal trouvé, renvoyer un statut de succès
+      res.json({ status: "success", message: "Code Postal valide." });
+    } else {
+      // Code Postal non trouvé, renvoyer une erreur
+      res
+        .status(404)
+        .json({ status: "error", message: "Code Postal invalide." });
+    }
+  } catch (error) {
+    console.error(error.message);
+    res
+      .status(500)
+      .send("Erreur du serveur lors de la vérification du Code Postal.");
+  }
+});
 
 app.post("/verifier-carte", async (req, res) => {
   const { numeroCarte } = req.body;
