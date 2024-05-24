@@ -217,6 +217,33 @@ app.post("/verifier-codepromo", async (req, res) => {
 //     });
 //   }
 // });
+app.post("/recuperer-solde", async (req, res) => {
+  const { numeroCarte, telcl } = req.body;
+  try {
+    let result;
+    if (numeroCarte) {
+      result = await pool.query(
+        "SELECT soldefid FROM client WHERE num_carte = $1",
+        [numeroCarte]
+      );
+    } else if (telcl) {
+      result = await pool.query(
+        "SELECT soldefid FROM client WHERE telcl = $1",
+        [telcl]
+      );
+    }
+
+    if (result.rows.length > 0) {
+      res.json({ status: "success", solde: result.rows[0].soldefid });
+    } else {
+      res.status(404).json({ status: "error", message: "Client non trouvé." });
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Erreur du serveur lors de la récupération du solde.");
+  }
+});
+
 // Démarrer le serveur
 app.listen(port, () => {
   console.log(`Le serveur est démarré sur le port ${port}`);
